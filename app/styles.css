@@ -1,0 +1,35 @@
+html, body, .container-fluid {
+  background-color: #D6D8DC;
+}
+
+.text-input {
+  font-size: 16px;
+}
+
+.hash-output {
+  color: #575B5E;
+  font-size: 16px;
+  letter-spacing: 2px;
+  white-space: pre-wrap;
+}
+
+.hash-heading {
+  color: #575B5E;
+  font-weight: normal;
+}
+
+#audio-files {
+    width: 100%;
+}
+
+.audio-list-heading h3, .audio-list-heading span {
+    display: inline-block;
+}
+#audio-summary {
+    font-style: italic;
+}
+.audio-list-box button {
+    font-weight: bold;
+    font-size: larger;
+    width: 100%;
+}

@@ -1,0 +1,14 @@
+{
+    "name" : "ai2v",
+    "version" : "1.0.0",
+    "description" : "Simple UI for making videos from audio files and images",
+    "main" : "main.js",
+    "repository" : "prakashk/ai2v",
+    "scripts" : {
+        "start" : "electron main.js"
+    },
+    "license" : "GPL-3.0",
+    "devDependencies" : {
+        "electron" : "~1.6.2"
+    }
+}
