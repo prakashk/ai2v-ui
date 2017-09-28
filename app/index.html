@@ -27,13 +27,13 @@
   <body>
     <div id="container" class="container-fluid">
       <!-- audio file list -->
-      <div class="row">
+      <div class="row audio-chooser">
         <div class="col-xs-12">
-          <div class="row audio-list-heading">
+          <div class="row list-heading">
             <h3>Select Audio files</h3>
-            <span id="audio-summary"></span>
+            <span class="summary"></span>
           </div>
-          <div class="row audio-list-box">
+          <div class="row list-box">
             <div class="col-xs-1 reorder-buttons">
               <button id="audio-move-up">&uArr;</button>
               <button id="audio-move-down">&dArr;</button>
@@ -46,6 +46,40 @@
               <button id="audio-add">+</button>
               <button id="audio-remove">&minus;</button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- image file list -->
+      <div class="row image-chooser">
+        <div class="col-xs-12">
+          <div class="row list-heading">
+            <h3>Select Image files</h3>
+            <span class="summary"></span>
+          </div>
+          <div class="row list-box">
+            <div class="col-xs-1 reorder-buttons">
+              <button id="image-move-up">&uArr;</button>
+              <button id="image-move-down">&dArr;</button>
+            </div>
+            <div class="col-xs-10 file-list">
+              <select id="image-files" multiple="multiple" size="4">
+              </select>
+            </div>
+            <div class="col-xs-1 add-rm-buttons">
+              <button id="image-add">+</button>
+              <button id="image-remove">&minus;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row">
+          <div class="col-xs-10 status">
+          </div>
+          <div class="col-xs-2" id="create-video">
+            <button>Create Video</button>
           </div>
         </div>
       </div>

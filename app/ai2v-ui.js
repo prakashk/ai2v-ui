@@ -4,9 +4,17 @@ const {remote} = require('electron');
 const {dialog} = remote;
 const path = require('path');
 
-var audioAdd, audioRemove, audioMoveUp, audioMoveDown;
+var ffmpeg_path;
 
-var audioFiles;
+var audioAdd, audioRemove, audioMoveUp, audioMoveDown;
+var imageAdd, imageRemove, imageMoveUp, imageMoveDown;
+
+var audioFiles, imageFiles, create_video, create_button;
+
+function set_config() {
+    // ffmpeg path
+    ffmpeg_path = '/usr/bin/ffmpeg';
+}
 
 function makeOption(filePath) {
     var option = document.createElement('option');
@@ -15,120 +23,256 @@ function makeOption(filePath) {
     return option;
 }
 
-function updateAudioListSummary() {
-    var summary = document.getElementById("audio-summary");
-    $(summary).text(audioFiles.options.length + " files selected");
+function updateSummary(summary_id, message) {
+    var summary = document.getElementById(summary_id);
+    $(summary).text(message);
 }
 
-function handleAudioAdd() {
+function addFiles(file_list_id, file_types, summary_id) {
+    var file_list = document.getElementById(file_list_id);
     dialog.showOpenDialog(
         {
-            filters: [
-                {
-                    name: 'Audio files',
-                    extensions: ['mp3', 'wav']
-                }
-            ],
+            filters: file_types,
             properties: ['openFile', 'multiSelections']
         },
         function (filePaths) {
-            console.log(filePaths);
-            // add chosen files to the file-list
-            for (let filePath of filePaths) {
-                console.log("-- add: " + filePath.toString());
-                audioFiles.appendChild(makeOption(filePath));
+            if (filePaths != undefined) {
+                for (let filePath of filePaths) {
+                    file_list.appendChild(makeOption(filePath));
+                }
             }
-            updateAudioListSummary();
+            updateSummary(summary_id, file_list.options.length + " files selected");
         }
-    )
+    );
 }
 
-function handleAudioRemove() {
-    console.log("-- audio remove --");
-    console.log("list size = " + audioFiles.options.length);
-    if (audioFiles.options.length == 0) {
+function moveFiles(file_list_id, direction) {
+    var file_list = document.getElementById(file_list_id);
+    if (file_list.options.length == 0) {
+        alert("Nothing to move");
+        return;
+    }
+    var selectedFiles = file_list.selectedOptions;
+    if (selectedFiles.length == 0) {
+        alert("Select a file to move");
+        return;
+    }
+    if (selectedFiles.length > 1) {
+        alert("Cannot move multiple files");
+        return;
+    }
+    var selectedFile = selectedFiles[0];
+    console.log(selectedFile);
+
+    var sibiling = direction == "up"
+        ? $(selectedFile).prev()
+        : $(selectedFile).next();
+
+    if (sibiling.length > 0) {
+        $(selectedFile).detach();
+        if (direction == "up") {
+            $(sibiling).before(selectedFile);
+        }
+        else {
+            $(sibiling).after(selectedFile);
+        }
+    }
+
+}
+
+function removeFiles(file_list_id, summary_id) {
+    var file_list = document.getElementById(file_list_id);
+    if (file_list.options.length == 0) {
         alert("Nothing to remove");
         return;
     }
 
-    var selectedFiles = audioFiles.selectedOptions;
+    var selectedFiles = file_list.selectedOptions;
     if (selectedFiles.length == 0) {
         alert("Select a file to remove");
         return;
     }
     for (const file of selectedFiles) {
-        console.log("-- removing: " + file);
         audioFiles.remove(file);
     }
-    updateAudioListSummary();
+    updateSummary(summary_id, file_list.options.length + " files selected");
+}
+
+function handleAudioAdd() {
+    var filters = [
+        {
+            name: 'Audio files',
+            extensions: ['mp3', 'wav']
+        }
+    ];
+    addFiles('audio-files', filters, "audio-summary");
+}
+
+function handleAudioRemove() {
+    removeFiles('audio-files', "audio-summary");
 }
 
 function handleAudioMoveUp() {
-    if (audioFiles.options.length == 0) {
-        alert("Nothing to move");
-        return;
-    }
-    var selectedFiles = audioFiles.selectedOptions;
-    if (selectedFiles.length == 0) {
-        alert("Select a file to move");
-        return;
-    }
-    if (selectedFiles.length > 1) {
-        alert("Cannot move multiple files");
-        return;
-    }
-    var selectedFile = selectedFiles[0];
-    console.log(selectedFile);
-    var previousSibiling = $(selectedFile).prev();
-    console.log("previous: " + previousSibiling + "; size = " + previousSibiling.length);
-    if (previousSibiling.length > 0) {
-        $(selectedFile).detach();
-        $(previousSibiling).before(selectedFile);
-    }
+    moveFiles('audio-files', 'up');
 }
 
 function handleAudioMoveDown() {
-    if (audioFiles.options.length == 0) {
-        alert("Nothing to move");
-        return;
+    moveFiles('audio-files', 'down');
+}
+
+function handleImageAdd() {
+    var filters = [
+        {
+            name: 'Image files',
+            extensions: ['jpg', 'jpeg', 'png']
+        }
+    ];
+    addFiles('image-files', filters, "image-summary");
+}
+
+function handleImageRemove() {
+    removeFiles('image-files', "image-summary");
+}
+
+function handleImageMoveUp() {
+    moveFiles('image-files', 'up');
+}
+
+function handleImageMoveDown() {
+    moveFiles('image-files', 'down');
+}
+
+function initializeAudioFileChooser(name) {
+    // audio file chooser
+    audioAdd = document.getElementById(name + '-add');
+    audioAdd.addEventListener('click', handleAudioAdd);
+
+    audioRemove = document.getElementById(name +'-remove');
+    audioRemove.addEventListener('click', handleAudioRemove);
+
+    audioMoveUp = document.getElementById(name + '-move-up');
+    audioMoveUp.addEventListener('click', handleAudioMoveUp);
+
+    audioMoveDown = document.getElementById(name + '-move-down');
+    audioMoveDown.addEventListener('click', handleAudioMoveDown);
+
+    return document.getElementById(name + '-files');
+}
+
+function initializeImageFileChooser(name) {
+    // image file chooser
+    imageAdd = document.getElementById(name + '-add');
+    imageAdd.addEventListener('click', handleImageAdd);
+
+    imageRemove = document.getElementById(name +'-remove');
+    imageRemove.addEventListener('click', handleImageRemove);
+
+    imageMoveUp = document.getElementById(name + '-move-up');
+    imageMoveUp.addEventListener('click', handleImageMoveUp);
+
+    imageMoveDown = document.getElementById(name + '-move-down');
+    imageMoveDown.addEventListener('click', handleImageMoveDown);
+
+    return document.getElementById(name + '-files');
+}
+
+function get_files(file_list) {
+    console.log("-- get_files(" + file_list + ") --")
+    let files = Array();
+    for (const option of file_list.options) {
+        console.log(option);
+        files.push(option.value);
     }
-    var selectedFiles = audioFiles.selectedOptions;
-    if (selectedFiles.length == 0) {
-        alert("Select a file to move");
-        return;
-    }
-    if (selectedFiles.length > 1) {
-        alert("Cannot move multiple files");
-        return;
-    }
-    var selectedFile = selectedFiles[0];
-    console.log(selectedFile);
-    var nextSibiling = $(selectedFile).next();
-    console.log("next: " + nextSibiling + "; size = " + nextSibiling.length);
-    if (nextSibiling.length > 0) {
-        $(selectedFile).detach();
-        $(nextSibiling).after(selectedFile);
-    }
+    console.log(files);
+    return files;
+}
+
+function get_video_output_name() {
+    return dialog.showSaveDialog(
+        {
+            title: "Select video file location",
+            filters: [
+                {
+                    name: "Video files",
+                    extensions: ["mp4"]
+                }
+            ]
+        }
+    );
+}
+
+const flatten = arr => arr.reduce(
+  (a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []
+);
+
+function build_command_args(audios, images, video_out) {
+    console.log("-- build_command: " + audios);
+    return flatten(
+        [
+            '-loop', '1',
+            images.map((x) => {return ["-i", x];}),
+            audios.map((x) => {return ["-i", x];}),
+            '-c:v', 'libx264',
+            '-c:a', 'libvo_aacenc',
+            '-b:a', '192k',
+            '-shortest',
+            video_out
+        ]
+    );
+}
+
+const spawn = require('child_process').spawn;
+
+function run_command(cmd, args) {
+    console.log(cmd + ' ' + args);
+
+    const child = spawn(cmd, args);
+
+    console.log('-- started child process --');
+
+    child.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    })
+
+    child.stderr.on('data', (data) => {
+        console.log(`stderr: ${data}`);
+    })
+
+    child.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+    })
+}
+
+function handleCreateVideo() {
+    // gather audio files
+    const audios = get_files(audioFiles);
+    const images = get_files(imageFiles);
+    const video_output = get_video_output_name();
+
+    var command_args = build_command_args(audios, images, video_output);
+
+    run_command(ffmpeg_path, command_args);
+}
+
+function initializeCreateVideo(name) {
+    create_button = document.getElementById(name);
+    create_button.addEventListener('click', handleCreateVideo);
 }
 
 onload = function() {
     console.log("ui.onload -- begin");
-    audioAdd = document.getElementById('audio-add');
-    audioRemove = document.getElementById('audio-remove');
-    audioMoveUp = document.getElementById('audio-move-up');
-    audioMoveDown = document.getElementById('audio-move-down');
 
-    audioAdd.addEventListener('click', handleAudioAdd);
-    audioRemove.addEventListener('click', handleAudioRemove);
-    audioMoveUp.addEventListener('click', handleAudioMoveUp);
-    audioMoveDown.addEventListener('click', handleAudioMoveDown);
+    // set configuration
+    set_config();
 
-    audioFiles = document.getElementById('audio-files');
+    // audio file chooser
+    audioFiles = initializeAudioFileChooser('audio');
 
-    // disable all buttons except add buttons to begin with
-    // audioRemove.disable();
-    // audioMoveUp.disable();
-    // audioMoveDown.disable();
+    // image file chooser
+    imageFiles = initializeImageFileChooser('image');
+
+    // create video button
+    create_video = initializeCreateVideo('create-video');
 
     console.log("ui.onload -- end");
 };

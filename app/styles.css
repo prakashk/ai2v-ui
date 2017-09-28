@@ -18,17 +18,17 @@ html, body, .container-fluid {
   font-weight: normal;
 }
 
-#audio-files {
+#audio-files, #image-files {
     width: 100%;
 }
 
-.audio-list-heading h3, .audio-list-heading span {
+.list-heading h3, .list-heading span {
     display: inline-block;
 }
-#audio-summary {
+.summary {
     font-style: italic;
 }
-.audio-list-box button {
+.list-box button {
     font-weight: bold;
     font-size: larger;
     width: 100%;
