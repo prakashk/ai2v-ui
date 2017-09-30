@@ -1,14 +1,19 @@
 {
-    "name" : "ai2v",
-    "version" : "1.0.0",
-    "description" : "Simple UI for making videos from audio files and images",
-    "main" : "main.js",
-    "repository" : "prakashk/ai2v",
-    "scripts" : {
-        "start" : "electron main.js"
-    },
-    "license" : "GPL-3.0",
-    "devDependencies" : {
-        "electron" : "~1.6.2"
-    }
+  "name": "ai2v",
+  "version": "0.1.0",
+  "description": "Simple UI for making videos from audio files and images",
+  "main": "main.js",
+  "repository": "prakashk/ai2v",
+  "scripts": {
+    "start": "electron main.js",
+    "package": "electron-packager ./ a2iv --all --out ./dist/a2iv --version 0.1.0 --overwrite"
+  },
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "electron": "~1.6.2",
+    "electron-packager": "^5.2.1"
+  },
+  "dependencies": {
+    "nconf": "^0.7.2"
+  }
 }

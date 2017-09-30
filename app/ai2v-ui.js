@@ -3,6 +3,7 @@
 const {remote} = require('electron');
 const {dialog} = remote;
 const path = require('path');
+const config = require('./config');
 
 var ffmpeg_path;
 
@@ -11,9 +12,9 @@ var imageAdd, imageRemove, imageMoveUp, imageMoveDown;
 
 var audioFiles, imageFiles, create_video, create_button;
 
-function set_config() {
+function load_config() {
     // ffmpeg path
-    ffmpeg_path = '/usr/bin/ffmpeg';
+    ffmpeg_path = config.readSetting('ffmpeg_path') || '/usr/bin/ffmpeg';
 }
 
 function makeOption(filePath) {
@@ -26,6 +27,14 @@ function makeOption(filePath) {
 function updateSummary(summary_id, message) {
     var summary = document.getElementById(summary_id);
     $(summary).text(message);
+}
+
+function showStatus(message) {
+    updateSummary('status-message', message);
+}
+
+function clearStatus() {
+    updateSummary('status-message', '');
 }
 
 function addFiles(file_list_id, file_types, summary_id) {
@@ -209,6 +218,7 @@ function build_command_args(audios, images, video_out) {
     console.log("-- build_command: " + audios);
     return flatten(
         [
+            '-y',
             '-loop', '1',
             images.map((x) => {return ["-i", x];}),
             audios.map((x) => {return ["-i", x];}),
@@ -223,7 +233,7 @@ function build_command_args(audios, images, video_out) {
 
 const spawn = require('child_process').spawn;
 
-function run_command(cmd, args) {
+function run_command(cmd, args, output) {
     console.log(cmd + ' ' + args);
 
     const child = spawn(cmd, args);
@@ -236,22 +246,32 @@ function run_command(cmd, args) {
 
     child.stderr.on('data', (data) => {
         console.log(`stderr: ${data}`);
+        showStatus("there was an error creating the video.");
     })
 
     child.on('close', (code) => {
         console.log(`child process exited with code ${code}`);
+        showStatus("Successfully created video at: " + output);
     })
 }
 
 function handleCreateVideo() {
+    clearStatus();
+
     // gather audio files
     const audios = get_files(audioFiles);
     const images = get_files(imageFiles);
+
+    if (audios.length == 0 || images.length == 0) {
+        alert('Choose one audio file and one image file.');
+        return;
+    }
     const video_output = get_video_output_name();
 
     var command_args = build_command_args(audios, images, video_output);
 
-    run_command(ffmpeg_path, command_args);
+    showStatus("Creating video ...");
+    run_command(ffmpeg_path, command_args, video_output);
 }
 
 function initializeCreateVideo(name) {
@@ -263,7 +283,7 @@ onload = function() {
     console.log("ui.onload -- begin");
 
     // set configuration
-    set_config();
+    load_config();
 
     // audio file chooser
     audioFiles = initializeAudioFileChooser('audio');

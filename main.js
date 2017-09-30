@@ -1,11 +1,12 @@
 'use strict';
 
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, ipcMain} = require('electron');
 
-var path = require('path');
-var url = require('url');
+const path = require('path');
+const url = require('url');
 
 let mainWindow;
+let settingsWindow;
 
 app.on('ready', function () {
     console.log("-- begin --");
@@ -35,3 +36,31 @@ app.on('ready', function () {
     // initialize();
     console.log("-- init done --");
 })
+
+ipcMain.on('open-settings-window', function() {
+    if (settingsWindow) {
+        return;
+    }
+
+    settingsWindow = new BrowserWindow({
+        frame: false,
+        height: 200,
+        width: 600
+    });
+
+    settingsWindow.loadURL('file://' + __dirname + 'app/settings.html');
+
+    settingsWindow.on('closed', function() {
+        settingsWindow = null;
+    });
+})
+
+ipcMain.on('close-settings-window', function() {
+    if (settingsWindow) {
+        settingsWindow.close();
+    }
+})
+
+ipcMain.on('close-main-window', function() {
+    app.quit();
+});
