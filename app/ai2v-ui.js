@@ -1,6 +1,6 @@
 'use strict';
 
-const {remote} = require('electron');
+const {ipcRenderer, remote} = require('electron');
 const {dialog} = remote;
 const path = require('path');
 const config = require('./config');
@@ -10,11 +10,13 @@ var ffmpeg_path;
 var audioAdd, audioRemove, audioMoveUp, audioMoveDown;
 var imageAdd, imageRemove, imageMoveUp, imageMoveDown;
 
-var audioFiles, imageFiles, create_video, create_button;
+var audioFiles, imageFiles, create_video, edit_settings;
 
 function load_config() {
     // ffmpeg path
     ffmpeg_path = config.readSetting('ffmpeg_path') || '/usr/bin/ffmpeg';
+
+    // default video output folder
 }
 
 function makeOption(filePath) {
@@ -186,7 +188,6 @@ function initializeImageFileChooser(name) {
 }
 
 function get_files(file_list) {
-    console.log("-- get_files(" + file_list + ") --")
     let files = Array();
     for (const option of file_list.options) {
         console.log(option);
@@ -205,7 +206,8 @@ function get_video_output_name() {
                     name: "Video files",
                     extensions: ["mp4"]
                 }
-            ]
+            ],
+            defaultPath: config.readSetting('video_output_folder')
         }
     );
 }
@@ -275,8 +277,18 @@ function handleCreateVideo() {
 }
 
 function initializeCreateVideo(name) {
-    create_button = document.getElementById(name);
+    const create_button = document.getElementById(name);
     create_button.addEventListener('click', handleCreateVideo);
+}
+
+function handleEditSettings() {
+    console.log('sending: open-settings-window event...');
+    ipcRenderer.send('open-settings-window');
+}
+
+function initializeEditSettings(name) {
+    const edit_settings_button = document.getElementById(name);
+    edit_settings_button.addEventListener('click', handleEditSettings);
 }
 
 onload = function() {
@@ -293,6 +305,9 @@ onload = function() {
 
     // create video button
     create_video = initializeCreateVideo('create-video');
+
+    // edit settings button
+    edit_settings = initializeEditSettings('edit-settings');
 
     console.log("ui.onload -- end");
 };

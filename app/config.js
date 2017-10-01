@@ -11,20 +11,38 @@ function getUserHome() {
 }
 
 function getConfigFile() {
+    let configFile = appName + '.json';
     const home = getUserHome();
+    console.log('home = ' + home);
     if (platform == 'win32') {
-        home + '/' + appName + '.json';
+        configFile = home + '/' + configFile;
     }
     else {
-        const configDir = fs.lstatSync(home + '/.config');
-        if (configDir.isDirectory()) {
-            return configDir + '/' + appName + '.json';
+        let configDirPath = home + '/.config';
+        const configDir = fs.lstatSync(configDirPath);
+        // console.log('configDir = ', configDir);
+        if (configDir && configDir.isDirectory()) {
+            configFile = configDirPath + '/' + configFile;
         }
         else {
-            return home + '/.' + appName + '.json';
+            configFile = home + '/.' + configFile;
         }
     }
+    console.log('configFile = ', configFile);
+
+    if (!fs.existsSync(configFile)) {
+        initConfig(configFile);
+    }
+
+    return configFile;
 }
+
+const defaultConfig = {};
+
+function initConfig(configFile) {
+    fs.writeFileSync(configFile, JSON.stringify(defaultConfig));
+}
+
 function readSetting(key) {
     let config = nconf.file(getConfigFile());
     config.load();

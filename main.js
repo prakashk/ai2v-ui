@@ -38,17 +38,28 @@ app.on('ready', function () {
 })
 
 ipcMain.on('open-settings-window', function() {
+    console.log('received: open-settings-window event.');
     if (settingsWindow) {
+        settingsWindow.focus();
         return;
     }
 
     settingsWindow = new BrowserWindow({
-        frame: false,
-        height: 200,
+        height: 300,
         width: 600
     });
 
-    settingsWindow.loadURL('file://' + __dirname + 'app/settings.html');
+    settingsWindow.loadURL('file://' + __dirname + '/app/settings.html');
+    // console.log(path.join(__dirname, './app/settings.html'));
+    // settingsWindow.loadURL(url.format({
+    //     pathname: path.join(__dirname, './app/settings.html'),
+    //     protocol: 'file:',
+    //     slashes: true
+    // }));
+
+    settingsWindow.once('ready-to-show', function() {
+        settingsWindow.show()
+    });
 
     settingsWindow.on('closed', function() {
         settingsWindow = null;

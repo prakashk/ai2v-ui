@@ -6,6 +6,14 @@
     <title>A + I &rArr; V Settings</title>
 
     <!-- scripts  -->
+    <script src="./settings.js"></script>
+
+    <script>
+      if (typeof module === 'object') {
+          window.module = module; module = undefined;
+      }
+    </script>
+
     <script src="./vendor/jquery-3.1.1.js"></script>
 
     <!-- Stylesheets -->
@@ -20,18 +28,28 @@
 
           <p>
             <label for="ffmpeg-program">ffmpeg location:</label>
-            <input type="text" size="50">
-            <button>Choose...</button>
+            <input type="text" size="50" id="ffmpeg-program">
+            <button id="choose-ffmpeg">Choose...</button>
           </p>
 
           <p>
             <label for="video-output-folder">Folder for video files:</label>
-            <input type="text" size="50">
-            <button>Choose...</button>
+            <input type="text" size="50" id="video-output-folder">
+            <button id="choose-output-folder">Choose...</button>
           </p>
+
+          <div class="row">
+            <div class="row">
+              <div class="col-xs-8 status">
+                <span id="status-message"></span>
+              </div>
+              <div class="col-xs-2" id="save-settings">
+                <button>Save</button>
+          </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>
-    <script src="./settings.js">
   </body>
 </html>
