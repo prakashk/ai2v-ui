@@ -273,6 +273,7 @@ function handleCreateVideo() {
     var command_args = build_command_args(audios, images, video_output);
 
     showStatus("Creating video ...");
+    load_config();
     run_command(ffmpeg_path, command_args, video_output);
 }
 
