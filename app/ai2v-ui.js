@@ -236,7 +236,7 @@ function build_command_args(audios, images, video_out) {
 const spawn = require('child_process').spawn;
 
 function run_command(cmd, args, output) {
-    console.log(cmd + ' ' + args);
+    console.log(cmd + ' ' + args.join(' '));
 
     const child = spawn(cmd, args);
 
