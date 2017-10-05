@@ -104,7 +104,7 @@ function removeFiles(file_list_id, summary_id) {
         return;
     }
     for (const file of selectedFiles) {
-        audioFiles.remove(file);
+        file_list.remove(file);
     }
     updateSummary(summary_id, file_list.options.length + " files selected");
 }
