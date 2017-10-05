@@ -225,7 +225,7 @@ function build_command_args(audios, images, video_out) {
             images.map((x) => {return ["-i", x];}),
             audios.map((x) => {return ["-i", x];}),
             '-c:v', 'libx264',
-            '-c:a', 'libvo_aacenc',
+            '-c:a', process.platform == 'linux' ? 'libvo_aacenc' : 'aac',
             '-b:a', '192k',
             '-shortest',
             video_out
